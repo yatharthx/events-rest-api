@@ -9,22 +9,22 @@ import (
 var DB *sql.DB
 
 func InitDB() {
-  pool, err := sql.Open("sqlite3", "api.db")
+	pool, err := sql.Open("sqlite3", "api.db")
 
-  if err != nil {
-    panic("Could not connect to the database.")
-  }
+	if err != nil {
+		panic("Could not connect to the database.")
+	}
 
-  DB = pool
+	DB = pool
 
-  DB.SetMaxOpenConns(10)
-  DB.SetMaxIdleConns(5)
+	DB.SetMaxOpenConns(10)
+	DB.SetMaxIdleConns(5)
 
-  createTables()
+	createTables()
 }
 
 func createTables() {
-  createUsersTableQuery := `
+	createUsersTableQuery := `
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
@@ -32,13 +32,13 @@ func createTables() {
   )
   `
 
-  _, err := DB.Exec(createUsersTableQuery)
+	_, err := DB.Exec(createUsersTableQuery)
 
-  if err != nil {
-    panic("Could not create users table.")
-  }
+	if err != nil {
+		panic("Could not create users table.")
+	}
 
-  createEventsTableQuery := `
+	createEventsTableQuery := `
   CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -50,9 +50,9 @@ func createTables() {
   )
   `
 
-  _, err = DB.Exec(createEventsTableQuery)
+	_, err = DB.Exec(createEventsTableQuery)
 
-  if err != nil {
-    panic("Could not create events table.");
-  }
+	if err != nil {
+		panic("Could not create events table.")
+	}
 }
