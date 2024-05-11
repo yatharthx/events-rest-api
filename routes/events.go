@@ -6,12 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/yatharthx/events-rest-api/models"
-	"github.com/yatharthx/events-rest-api/utils"
 )
 
 func getEvents(ctx *gin.Context) {
 	events, err := models.GetAllEvents()
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not fetch events. Please try again.",
@@ -23,7 +21,6 @@ func getEvents(ctx *gin.Context) {
 
 func getEvent(ctx *gin.Context) {
 	eventId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not parse event ID",
@@ -32,7 +29,6 @@ func getEvent(ctx *gin.Context) {
 	}
 
 	event, err := models.GetEventByID(eventId)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not fetch event",
@@ -44,27 +40,8 @@ func getEvent(ctx *gin.Context) {
 }
 
 func createEvent(ctx *gin.Context) {
-	token := ctx.Request.Header.Get("Authorization")
-
-	if token == "" {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"message": "Not authorized",
-		})
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"message": "Not authorized",
-		})
-		return
-	}
-
 	var event models.Event
-	err = ctx.ShouldBindJSON(&event)
-
+	err := ctx.ShouldBindJSON(&event)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not parse request data.",
@@ -72,6 +49,7 @@ func createEvent(ctx *gin.Context) {
 		return
 	}
 
+	userId := ctx.GetInt64("userId")
 	event.UserID = userId
 	event.Save()
 
@@ -83,7 +61,6 @@ func createEvent(ctx *gin.Context) {
 
 func updateEvent(ctx *gin.Context) {
 	eventId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not parse event ID",
@@ -92,7 +69,6 @@ func updateEvent(ctx *gin.Context) {
 	}
 
 	_, err = models.GetEventByID(eventId)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not fetch the event",
@@ -102,7 +78,6 @@ func updateEvent(ctx *gin.Context) {
 
 	var updatedEvent models.Event
 	err = ctx.ShouldBindJSON(&updatedEvent)
-
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not parse request data",
@@ -112,7 +87,6 @@ func updateEvent(ctx *gin.Context) {
 
 	updatedEvent.ID = eventId
 	err = updatedEvent.Update()
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Failed to update the event",
@@ -128,7 +102,6 @@ func updateEvent(ctx *gin.Context) {
 
 func deleteEvent(ctx *gin.Context) {
 	eventId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not parse event ID",
@@ -137,7 +110,6 @@ func deleteEvent(ctx *gin.Context) {
 	}
 
 	event, err := models.GetEventByID(eventId)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not fetch the event",
@@ -146,7 +118,6 @@ func deleteEvent(ctx *gin.Context) {
 	}
 
 	err = event.Delete()
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not remove the event",
